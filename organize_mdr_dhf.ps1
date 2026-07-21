@@ -510,7 +510,7 @@ foreach ($item in $plan) {
     New-Item -ItemType Directory -Path $stagingSubDir -Force | Out-Null
     Write-Log "[$idx/$total] 复制：$($item.'文件名') -> staging($stagingSubDir) -> $target" 'INFO' $CopyLog
 
-    $r = Copy-FileWithWatchdog -Source $item.'原路径' -StagingFile $stagingSubDir -TimeoutSeconds $CopyTimeoutSeconds
+    $r = Copy-FileWithWatchdog -Source $item.'原路径' -StagingDir $stagingSubDir -TimeoutSeconds $CopyTimeoutSeconds
     if (-not $r.Success) {
         $item.'执行结果' = "失败：$($r.Error)"
         $copyErrors++
