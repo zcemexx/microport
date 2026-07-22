@@ -82,7 +82,9 @@ $MissingCsv   = Join-Path $ScriptDir ("DHF_未找到编号_$runTag.csv")
 $ScanLog      = Join-Path $ScriptDir ("DHF_扫描日志_$runTag.txt")
 $CopyLog      = Join-Path $ScriptDir ("DHF_复制日志_$runTag.txt")
 $SummaryLog   = Join-Path $ScriptDir ("DHF_运行汇总_$runTag.txt")
-$StagingRoot  = Join-Path $ScriptDir ("DHF_staging_$runTag")
+# staging 必须使用短路径：若置于脚本目录，长文件名叠加 GUID 后可能超过 MAX_PATH，
+# robocopy 会返回成功码但无法在预期位置生成文件。系统临时目录通常更短。
+$StagingRoot  = Join-Path ([IO.Path]::GetTempPath()) ("DHF_stage_$runTag")
 $SourceScanList  = Join-Path $ScriptDir ("DHF_源扫描清单_$runTag.txt")
 $GoldScanList    = Join-Path $ScriptDir ("DHF_Gold扫描清单_$runTag.txt")
 
@@ -265,7 +267,8 @@ function Copy-FileWithWatchdog {
     $srcDir = Split-Path -Parent $Source
     $srcName = Split-Path -Leaf $Source
     $stagingDir = $StagingDir
-    $rcArgs = @("`"$srcDir`"", "`"$stagingDir`"", "`"$srcName`"", '/R:0', '/W:0', '/NJH', '/NJS', '/NDL', '/NP', '/NS', '/NC', "/UNILOG:`"$StagingFile.log`"")
+    $stagingLog = Join-Path $stagingDir 'robocopy.log'
+    $rcArgs = @("`"$srcDir`"", "`"$stagingDir`"", "`"$srcName`"", '/R:0', '/W:0', '/NJH', '/NJS', '/NDL', '/NP', '/NS', '/NC', "/UNILOG:`"$stagingLog`"")
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'robocopy.exe'
     $psi.Arguments = ($rcArgs -join ' ')
