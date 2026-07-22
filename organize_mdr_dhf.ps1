@@ -16,9 +16,11 @@
 .PARAMETER GoldRoot
     Gold Standard（MDR 技术文档）根目录。
 .PARAMETER ListPath
-    编号清单（TSV）。默认为脚本同目录的"项目管理文件编号.txt"。
+    编号清单。普通模式为 TSV；-SearchMissingByName 模式为缺失编号 CSV。
 .PARAMETER Destination
-    输出目录。默认为桌面下的 DHF 文件夹。
+    输出目录。普通模式默认为桌面 DHF；按名称搜索时默认为桌面 DHF_undef。
+.PARAMETER SearchMissingByName
+    使用缺失编号 CSV 的"文件名称"列重新搜索文件名，并在复制时为文件名添加编号前缀。
 .PARAMETER Execute
     实际复制。未指定时仅预览。
 .PARAMETER DiagnosticOnly
@@ -42,6 +44,12 @@
 .EXAMPLE
     # 自定义超时
     .\organize_mdr_dhf.ps1 -Execute -ScanTimeoutSeconds 900 -CopyTimeoutSeconds 300
+.EXAMPLE
+    # 对未找到编号 CSV 按文件名称重新搜索（仅预览）
+    .\organize_mdr_dhf.ps1 -SearchMissingByName -ListPath '.\DHF_未找到编号_20260721_170030.csv'
+.EXAMPLE
+    # 确认预览后复制到桌面 DHF_undef，并添加编号前缀
+    .\organize_mdr_dhf.ps1 -SearchMissingByName -ListPath '.\DHF_未找到编号_20260721_170030.csv' -Execute
 #>
 [CmdletBinding()]
 param(
@@ -51,6 +59,7 @@ param(
     [string]$Destination = '',
     [switch]$Execute,
     [switch]$DiagnosticOnly,
+    [switch]$SearchMissingByName,
     [int]$ScanTimeoutSeconds = 600,
     [int]$CopyTimeoutSeconds = 180,
     [int]$MaxPathLength = 259
@@ -62,12 +71,16 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($ScriptDir)) { $ScriptDir = (Get-Location).Path }
 if ([string]::IsNullOrWhiteSpace($ListPath)) {
+    if ($SearchMissingByName) {
+        throw '-SearchMissingByName 模式必须通过 -ListPath 指定缺失编号 CSV。'
+    }
     $ListPath = Join-Path $ScriptDir '项目管理文件编号.txt'
 }
 if ([string]::IsNullOrWhiteSpace($Destination)) {
     $DesktopDir = [Environment]::GetFolderPath('Desktop')
     if ([string]::IsNullOrWhiteSpace($DesktopDir)) { $DesktopDir = Join-Path $HOME 'Desktop' }
-    $Destination = Join-Path $DesktopDir 'DHF'
+    $destinationFolderName = if ($SearchMissingByName) { 'DHF_undef' } else { 'DHF' }
+    $Destination = Join-Path $DesktopDir $destinationFolderName
 }
 
 # 时间戳后缀，避免覆盖历史日志；诊断模式单独命名以便区分
@@ -77,8 +90,16 @@ if ($DiagnosticOnly) {
 } else {
     $runTag = $TimeStamp
 }
-$PreviewCsv   = Join-Path $ScriptDir ("DHF_整理预览_$runTag.csv")
-$MissingCsv   = Join-Path $ScriptDir ("DHF_未找到编号_$runTag.csv")
+$PreviewCsv = if ($SearchMissingByName) {
+    Join-Path $ScriptDir ("DHF_undef_整理预览_$runTag.csv")
+} else {
+    Join-Path $ScriptDir ("DHF_整理预览_$runTag.csv")
+}
+$MissingCsv = if ($SearchMissingByName) {
+    Join-Path $ScriptDir ("DHF_undef_仍未找到_$runTag.csv")
+} else {
+    Join-Path $ScriptDir ("DHF_未找到编号_$runTag.csv")
+}
 $ScanLog      = Join-Path $ScriptDir ("DHF_扫描日志_$runTag.txt")
 $CopyLog      = Join-Path $ScriptDir ("DHF_复制日志_$runTag.txt")
 $SummaryLog   = Join-Path $ScriptDir ("DHF_运行汇总_$runTag.txt")
@@ -129,6 +150,53 @@ function Test-DocumentNumber {
     }
     # 普通编号：编号后不能跟字母/数字，也不能跟 -数字（避免 S0023-9008 匹到 S0023-9008-01）
     return $FileName -match "(?i)(?<![A-Za-z0-9])$escaped(?![A-Za-z0-9]|-\d)"
+}
+
+function ConvertTo-NormalizedDocumentName {
+    param([string]$Name)
+    if ([string]::IsNullOrWhiteSpace($Name)) { return '' }
+    $normalized = $Name.Normalize([Text.NormalizationForm]::FormKC).ToLowerInvariant()
+    # 名称匹配时忽略空格、标点、全半角差异和大小写。
+    return [Regex]::Replace($normalized, '[^\p{L}\p{Nd}]', '')
+}
+
+function Get-DocumentNameSearchTerms {
+    param([string]$ListName)
+    if ([string]::IsNullOrWhiteSpace($ListName)) { return @() }
+
+    # 个别清单名称本身以编号开头；二次搜索必须先去掉编号，否则找不到未编号文件。
+    $nameWithoutNumber = [Regex]::Replace(
+        $ListName,
+        '(?i)^\s*S\d{4}-[A-Z0-9-]+~?\s*',
+        ''
+    )
+    $rawTerms = @($nameWithoutNumber)
+
+    # 中英文标题常用括号或方括号并列；将较长的括号内容也作为独立检索词。
+    $matches = [Regex]::Matches($nameWithoutNumber, '[\(（\[]([^\)）\]]+)[\)）\]]')
+    foreach ($match in $matches) {
+        $rawTerms += $match.Groups[1].Value
+    }
+    $outsideBrackets = [Regex]::Replace($nameWithoutNumber, '[\(（\[][^\)）\]]+[\)）\]]', ' ')
+    $rawTerms += $outsideBrackets
+
+    $terms = @()
+    foreach ($rawTerm in $rawTerms) {
+        $term = ConvertTo-NormalizedDocumentName $rawTerm
+        # 太短的词容易误匹配；完整名称通常远长于此限制。
+        if ($term.Length -ge 6 -and $terms -notcontains $term) { $terms += $term }
+    }
+    return $terms
+}
+
+function Test-DocumentName {
+    param([string]$FileName, [string[]]$SearchTerms)
+    $candidate = ConvertTo-NormalizedDocumentName ([IO.Path]::GetFileNameWithoutExtension($FileName))
+    if ([string]::IsNullOrWhiteSpace($candidate)) { return $false }
+    foreach ($term in $SearchTerms) {
+        if ($candidate.Contains($term)) { return $true }
+    }
+    return $false
 }
 
 <#
@@ -374,12 +442,19 @@ $goldFiles = ConvertTo-FileInfoLite $goldFiles
 Write-Log "扫描完成。源文件 $($sourceFiles.Count)；Gold 文件 $($goldFiles.Count)" 'INFO' $ScanLog
 
 # ============================================================
-# 阶段 2：读取清单 + 编号匹配
+# 阶段 2：读取清单 + 编号/名称匹配
 # ============================================================
-$rows = Import-Csv -LiteralPath $ListPath -Delimiter "`t" -Encoding UTF8
-if (-not $rows) { throw '编号清单为空。' }
+$rows = if ($SearchMissingByName) {
+    Import-Csv -LiteralPath $ListPath -Encoding UTF8
+} else {
+    Import-Csv -LiteralPath $ListPath -Delimiter "`t" -Encoding UTF8
+}
+if (-not $rows) { throw '清单为空。' }
 if (-not ($rows[0].PSObject.Properties.Name -contains '文件编号')) {
     throw '清单中未找到"文件编号"列。'
+}
+if ($SearchMissingByName -and -not ($rows[0].PSObject.Properties.Name -contains '文件名称')) {
+    throw '按名称搜索时，清单中必须包含"文件名称"列。'
 }
 
 $plan = @()
@@ -390,11 +465,19 @@ $pathWarn = 0
 foreach ($row in $rows) {
     $rawNumber = ([string]$row.'文件编号').Trim()
     if ([string]::IsNullOrWhiteSpace($rawNumber)) { continue }
-    $isPrefix = $rawNumber.EndsWith('~')
     $number = $rawNumber.TrimEnd([char]'~').Trim()
 
-    $src = @($sourceFiles | Where-Object { Test-DocumentNumber $_.Name $number $isPrefix })
-    $gold = @($goldFiles | Where-Object { Test-DocumentNumber $_.Name $number $isPrefix })
+    if ($SearchMissingByName) {
+        $listName = ([string]$row.'文件名称').Trim()
+        if ([string]::IsNullOrWhiteSpace($listName)) { continue }
+        $searchTerms = @(Get-DocumentNameSearchTerms $listName)
+        $src = @($sourceFiles | Where-Object { Test-DocumentName $_.Name $searchTerms })
+        $gold = @($goldFiles | Where-Object { Test-DocumentName $_.Name $searchTerms })
+    } else {
+        $isPrefix = $rawNumber.EndsWith('~')
+        $src = @($sourceFiles | Where-Object { Test-DocumentNumber $_.Name $number $isPrefix })
+        $gold = @($goldFiles | Where-Object { Test-DocumentNumber $_.Name $number $isPrefix })
+    }
     $extensionList = @()
     foreach ($f in $src) { $extensionList += $f.Extension.ToLowerInvariant() }
     foreach ($f in $gold) { $extensionList += $f.Extension.ToLowerInvariant() }
@@ -426,11 +509,14 @@ foreach ($row in $rows) {
 
         foreach ($file in $chosen) {
             $selectionKey = $file.FullName.ToLowerInvariant()
+            if ($SearchMissingByName) { $selectionKey = "$number|$selectionKey" }
             if ($seenSelection.ContainsKey($selectionKey)) { continue }
             $seenSelection[$selectionKey] = $true
 
-            $targetPath = (Join-Path $Destination $file.Name)
+            $targetName = if ($SearchMissingByName) { "${number}_$($file.Name)" } else { $file.Name }
+            $targetPath = (Join-Path $Destination $targetName)
             $initialResult = if ($Execute) { '待复制' } else { '预览' }
+            $searchTermsText = if ($SearchMissingByName) { $searchTerms -join ' | ' } else { '' }
 
             # 目标路径长度预校验
             $pathFlag = ''
@@ -443,8 +529,10 @@ foreach ($row in $rows) {
             $plan += [pscustomobject][ordered]@{
                 '文件编号' = $rawNumber
                 '清单文件名称' = $row.'文件名称'
+                '名称检索词' = $searchTermsText
                 '选用来源' = $origin
                 '文件名' = $file.Name
+                '目标文件名' = $targetName
                 '原路径' = $file.FullName
                 '扩展名' = $file.Extension
                 '被Gold替代的源文件数' = $suppressed
@@ -507,7 +595,7 @@ foreach ($item in $plan) {
         continue
     }
 
-    $target = Get-SafeTargetPath $Destination $item.'文件名'
+    $target = Get-SafeTargetPath $Destination $item.'目标文件名'
     # 每文件一个独立的 staging 子目录（GUID），避免同名文件冲突
     $stagingSubDir = Join-Path $StagingRoot ([Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $stagingSubDir -Force | Out-Null
