@@ -1,0 +1,287 @@
+
+PS C:\Users\hejc\Desktop> ls
+
+
+    目录: C:\Users\hejc\Desktop
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+da----         2026/7/23     14:19                DHF
+d-----         2026/7/16     11:31                DHF v0.1
+d-----         2026/7/22     11:24                DHF v0.2
+d-----         2026/7/23     11:03                DHF_categorized
+d-----         2026/7/23     14:40                DHF_categorized_bk
+-a----         2026/7/15     15:15          36864 CGM1356MDR 项目管理文件编号20260604(已编号).pdf
+-a----         2023/7/17     12:17           1406 LenovoDriverInstall.lnk
+
+
+PS C:\Users\hejc\Desktop> cd DHF_categorized_bk
+PS C:\Users\hejc\Desktop\DHF_categorized_bk> /tr
+/tr : 无法将“/tr”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，
+然后再试一次。
+所在位置 行:1 字符: 1
++ /tr
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (/tr:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+PS C:\Users\hejc\Desktop\DHF_categorized_bk> tree /f
+卷 系统 的文件夹 PATH 列表
+卷序列号为 EEDB-5FCF
+C:.
+├─T1&2
+│      CGM-1-CE-A-CH9.2.1-S0023-9013 Software Requirements Specification for Continuous Glucose Monitoring System Receiver.docx
+│      CGM-1-CE-A-CH9.2.1-S0023-9013 Software Requirements Specification for Continuous Glucose Monitoring System Receiver.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9003 CGMS Software Development Plan.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9003 CGMS Software Development Plan.pdf
+│      S0023-9001 User Requirements Specification (URS)  For  CGMs  持续葡萄糖监测系统用户需求规范.docx
+│      S0023-9002 Design and Development Plan For CGMs持续葡萄糖监测系统设计与开发计划.docx
+│      S0023-9006 Risk Management Plan For CGMs.docx
+│      S0023-9006 Risk Management Plan For CGMs.pdf
+│      S0023-9007 附件A：持续葡萄糖监测系统（CGMs）技术评审检查表（T1&T2）.docx
+│      S0023-9007_持续葡萄糖监测系统（CGMs）T1&T2技术评审报告.doc
+│      S0023-9009 HAR for CGMs.docx
+│      S0023-9009 HAR for CGMs.pdf
+│      S0023-9010 Product Requirements Specification (PRS) for CGMs  持续葡萄糖监测系统产品需求规范.docx
+│      S0023-9011 Product Requirements Specification Review Report For CGMs 持续葡萄糖监测系统产品需求规范评审报告.docx
+│      S0023-9012 Design Input Traceability Table CGMs System  设计输入追溯表适用于持续葡萄糖监测系统.docx
+│
+├─T3
+│      CGM-1-CE-A-CH9.2.1-S0023-9042 Continuous Glucose Monitoring System Transmitter Software Requirements Specification.docx
+│      CGM-1-CE-A-CH9.2.1-S0023-9042 Continuous Glucose Monitoring System Transmitter Software Requirements Specification.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9018  Transmitter Software Architecture and Detailed Design of the CGM-MS1 Continuous Glucose Monitoring System [2].docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9018  Transmitter Software Architecture and Detailed Design of the CGM-MS1 Continuous Glucose Monitoring System [2].pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9018  Transmitter Software Architecture and Detailed Design of the CGM-MS1 Continuous Glucose Monitoring System.docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9018  Transmitter Software Architecture and Detailed Design of the CGM-MS1 Continuous Glucose Monitoring System.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9021 App.DOC
+│      CGM-1-CE-A-CH9.2.2-S0023-9021 App.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9021 Software architecture and detailed design of the receiving end of the continuous glucose monitoring system.DOC
+│      CGM-1-CE-A-CH9.2.2-S0023-9021 Software architecture and detailed design of the receiving end of the continuous glucose monitoring system.pdf
+│      CGM-1-CE-A-CH9.2.4-S0023-9029 -Log of the release date for the receiving end software of the continuous glucose monitoring system.docx
+│      CGM-1-CE-A-CH9.2.4-S0023-9029 -Log of the release date for the receiving end software of the continuous glucose monitoring system.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9067- Configuration Status Report of Continuous Glucose Monitoring (CGM) System Software.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9067- Configuration Status Report of Continuous Glucose Monitoring (CGM) System Software.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9088 Receiver Software Traceability Matri(1).xlsx
+│      CGM-1-CE-A-CH9.2.5-S0023-9088 Receiver Software Traceability Matri.pdf
+│      S0023-9017 Product Architecture Design For CGMs产品架构设计适用于持续葡萄糖监测系统.docx
+│      S0023-9023 Software Requirements Specification for Continuous Glucose Monitoring System Receiver End.docx
+│      S0023-9027A Continuous Glucose Monitoring System Receiver Mobile Application Software Integration Test Plan.doc
+│      S0023-9027A Continuous Glucose Monitoring System Receiver Mobile Application Software Integration Test Plan.pdf
+│      S0023-9027B Continuous Glucose Monitoring System Receiver Mobile Application Software Integration Test Report.doc
+│      S0023-9027B Continuous Glucose Monitoring System Receiver Mobile Application Software Integration Test Report.pdf
+│      S0023-9028A Test Plan for Mobile Application Software System of Continuous Glucose Monitoring System Receiver.docx
+│      S0023-9028A Test Plan for Mobile Application Software System of Continuous Glucose Monitoring System Receiver.pdf
+│      S0023-9028B Continuous glucose monitoring system receiving end mobile application software system test Report.docx
+│      S0023-9028B Continuous glucose monitoring system receiving end mobile application software system test Report.pdf
+│      S0023-9030 Continuous glucose monitoring systems (CGMs) biological evaluation program.docx
+│      S0023-9032 Design Failure Mode and Effects Analysis (DFMEA)  For CGMs.docx
+│      S0023-9032 Design Failure Mode and Effects Analysis (DFMEA)  For CGMs.pdf
+│      S0023-9033 Use-Failure Mode and Effects Analysis (Use-FMEA) For CGMs.docx
+│      S0023-9033 Use-Failure Mode and Effects Analysis (Use-FMEA) For CGMs.pdf
+│      S0023-9036 持续葡萄糖监测系统说明书 IFU- Continuous Glucose Monitoring System.docx
+│      S0023-9043 附件A：持续葡萄糖监测系统（CGMs）技术评审检查表（T3） .docx
+│      S0023-9043_持续葡萄糖监测系统（CGMs）T3技术评审报告.doc
+│      S0023-9045 Continuous glucose monitoring system CGM-MS1 Detailed Design.docx
+│      S0023-9068A CGM-MS3 CGMs Software unit test plan.docx
+│      S0023-9068A CGM-MS3 CGMs Software unit test plan.pdf
+│      S0023-9068B CGM-MS3 CGMs Software unit test report.docx
+│      S0023-9068B CGM-MS3 CGMs Software unit test report.pdf
+│      S0023-9069A CGM-MS3 CGMS Transmitter Software System Test Plan.doc
+│      S0023-9069A CGM-MS3 CGMS Transmitter Software System Test Plan.pdf
+│      S0023-9069B CGM-MS3  CGMs Transmitter Software System Test Report.docx
+│      S0023-9069B CGM-MS3  CGMs Transmitter Software System Test Report.pdf
+│      S0023-9070A CGM-MS5 Continuous Glucose Monitoring System Software unit testing plan.docx
+│      S0023-9070A CGM-MS5 Continuous Glucose Monitoring System Software unit testing plan.pdf
+│      S0023-9070B CGM-MS5 Continuous Grape Monitoring System Software Unit Test Report.docx
+│      S0023-9070B CGM-MS5 Continuous Grape Monitoring System Software Unit Test Report.pdf
+│      S0023-9071A CGM-MS5 Continuous Glucose Monitoring System Transmitter Software System Test Plan.doc
+│      S0023-9071A CGM-MS5 Continuous Glucose Monitoring System Transmitter Software System Test Plan.pdf
+│      S0023-9071B CGM-MS5 Continuous Glucose Monitoring System Transmitter Software System Test Report.docx
+│      S0023-9071B CGM-MS5 Continuous Glucose Monitoring System Transmitter Software System Test Report.pdf
+│      S0023-9072A CGM-MS1 Continuous Glucose Monitoring System Transmitter Software unit testing solution.docx
+│      S0023-9072A CGM-MS1 Continuous Glucose Monitoring System Transmitter Software unit testing solution.pdf
+│      S0023-9072B CGM-MS1 Continuous Glucose Monitoring System Transmitter Software Unit Test Report.docx
+│      S0023-9072B CGM-MS1 Continuous Glucose Monitoring System Transmitter Software Unit Test Report.pdf
+│      S0023-9073A CGM-MS1 Continuous Glucose Monitoring System Transmitter Software System Test Plan.doc
+│      S0023-9073A CGM-MS1 Continuous Glucose Monitoring System Transmitter Software System Test Plan.pdf
+│      S0023-9073B CGM-MS1 Continuous Glucose Monitoring System Transmitter Software System Test Report.docx
+│      S0023-9073B CGM-MS1 Continuous Glucose Monitoring System Transmitter Software System Test Report.pdf
+│      S0023-9074 -CGM-MS1 Transmitter Embedded Software Development Process Traceability Matrix.pdf
+│      S0023-9074 -CGM-MS1 Transmitter Embedded Software Development Process Traceability Matrix.xlsx
+│      S0023-9075 -CGM-MS3 Transmitter Embedded Software Development Process Traceability Matrix.pdf
+│      S0023-9075 -CGM-MS3 Transmitter Embedded Software Development Process Traceability Matrix.xlsx
+│      S0023-9076 -CGM-MS5 Transmitter Embedded Software Development Process Traceability Matrix.pdf
+│      S0023-9076 -CGM-MS5 Transmitter Embedded Software Development Process Traceability Matrix.xlsx
+│      S0023-9080 Usability Engineering Plan For CGMs .docx
+│      S0023-9080 Usability Engineering Plan For CGMs .pdf
+│      S0023-9081 User Profile and User Interface Characteristics For CGMs.docx
+│      S0023-9081 User Profile and User Interface Characteristics For CGMs.pdf
+│      S0023-9082 Formative Usability Test Protocol For CGMs .docx
+│      S0023-9082 Formative Usability Test Protocol For CGMs .pdf
+│      S0023-9083 Formative Usability Test Report For CGMs.docx
+│      S0023-9083 Formative Usability Test Report For CGMs.pdf
+│      S0023-9087A Unit Test Plan for CGM Receiver App.docx
+│      S0023-9087A Unit Test Plan for CGM Receiver App.pdf
+│      S0023-9087B Unit Test Report for CGM Receiver APP.docx
+│      S0023-9087B Unit Test Report for CGM Receiver APP.pdf
+│      S0023-9092 Use Scenarios and Task Analysis For CGMs .docx
+│      S0023-9092 Use Scenarios and Task Analysis For CGMs .pdf
+│      S0023-9096 Continuous Glucose Monitoring System Design Verification Traceability  持续葡萄糖监测系统设计验证追溯 表.docx
+│
+├─T4
+│      CGM-1-CE-A-CH12.6.1 S0023-9144A CGM-MS1 Sensor Component Inner Packaging Plan.docx
+│      CGM-1-CE-A-CH12.6.1 S0023-9144A CGM-MS1 Sensor Component Inner Packaging Plan.pdf
+│      CGM-1-CE-A-CH12.6.2 S0023-9144B CGM-MS1 Sensor Component Inner Packaging Report.docx
+│      CGM-1-CE-A-CH12.6.2 S0023-9144B CGM-MS1 Sensor Component Inner Packaging Report.pdf
+│      CGM-1-CE-A-CH12.6.3 S0023-9145A CGM-MS3 Inner Packaging Material Evaluation Plan.docx
+│      CGM-1-CE-A-CH12.6.3 S0023-9145A CGM-MS3 Inner Packaging Material Evaluation Plan.pdf
+│      CGM-1-CE-A-CH12.6.4 S0023-9145B CGM-MS3 Inner Packaging Material Evaluation Report.docx
+│      CGM-1-CE-A-CH12.6.4 S0023-9145B CGM-MS3 Inner Packaging Material Evaluation Report.pdf
+│      CGM-1-CE-A-CH12.6.5 S0023-9146A CGM-MS5&6 Sterilization Packaging Plan.docx
+│      CGM-1-CE-A-CH12.6.5 S0023-9146A CGM-MS5&6 Sterilization Packaging Plan.pdf
+│      CGM-1-CE-A-CH12.6.6 S0023-9146B CGM-MS5&6 Sterilization Packaging Report.docx
+│      CGM-1-CE-A-CH12.6.6 S0023-9146B CGM-MS5&6 Sterilization Packaging Report.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Attachment-Detailed Design of Architecture and Software for Continuous Glucose Monitoring System Transmitter  [2].docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Attachment-Detailed Design of Architecture and Software for Continuous Glucose Monitoring System Transmitter .docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Attachment-Detailed Design of Architecture and Software for Continuous Glucose Monitoring System Transmitter .pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Transmitter Software Architecture and Detailed Design of the CGM-MS3 Continuous Glucose Monitoring System [2].docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Transmitter Software Architecture and Detailed Design of the CGM-MS3 Continuous Glucose Monitoring System [2].pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Transmitter Software Architecture and Detailed Design of the CGM-MS3 Continuous Glucose Monitoring System.docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9132 Transmitter Software Architecture and Detailed Design of the CGM-MS3 Continuous Glucose Monitoring System.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Attachment-Transmitter Software Architecture and Detailed Design of the CGM-MS5 [2].docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Attachment-Transmitter Software Architecture and Detailed Design of the CGM-MS5.docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Attachment-Transmitter Software Architecture and Detailed Design of the CGM-MS5.pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Transmitter Software Architecture and Detailed Design of the CGM-MS5 Continuous Glucose Monitoring System [2].docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Transmitter Software Architecture and Detailed Design of the CGM-MS5 Continuous Glucose Monitoring System [2].pdf
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Transmitter Software Architecture and Detailed Design of the CGM-MS5 Continuous Glucose Monitoring System.docx
+│      CGM-1-CE-A-CH9.2.2-S0023-9133 Transmitter Software Architecture and Detailed Design of the CGM-MS5 Continuous Glucose Monitoring System.pdf
+│      CGM-1-CE-A-CH9.2.4-S0023-9134-CGM-MS1 Continuous Glucose Monitoring System Transmitter Software Release Notes.docx
+│      CGM-1-CE-A-CH9.2.4-S0023-9134-CGM-MS1 Continuous Glucose Monitoring System Transmitter Software Release Notes.pdf
+│      CGM-1-CE-A-CH9.2.4-S0023-9135 CGM-MS3 Continuous Glucose Monitoring System Transmitter Software Release Notes.docx
+│      CGM-1-CE-A-CH9.2.4-S0023-9135 CGM-MS3 Continuous Glucose Monitoring System Transmitter Software Release Notes.pdf
+│      CGM-1-CE-A-CH9.2.4-S0023-9136 CGM-MS5 Continuous Glucose Monitoring System Transmitter Software Release Notes.docx
+│      CGM-1-CE-A-CH9.2.4-S0023-9136 CGM-MS5 Continuous Glucose Monitoring System Transmitter Software Release Notes.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9119-Continuous Glucose Monitoring System Software Research Report.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9119-Continuous Glucose Monitoring System Software Research Report.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9121 IEC 62304 Declaration of Conformity.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9121 IEC 62304 Declaration of Conformity.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9122 [Continuous Glucose Monitoring System Software Bill of Materials].docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9122 [Continuous Glucose Monitoring System Software Bill of Materials].pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9123 Software Safety Classification Statement for Continuous Glucose Monitoring System.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9123 Software Safety Classification Statement for Continuous Glucose Monitoring System.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9124 CGM System Software Residual Risk Assessment.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9124 CGM System Software Residual Risk Assessment.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9125 -CGM System Software Risk Analysis and Control Measures.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9126 CGM System Software Risk Management Plan.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9126 CGM System Software Risk Management Plan.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9127 CGM System Software Risk Management Report.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9127 CGM System Software Risk Management Report.pdf
+│      S0023-9052A Assembly Material Cleaning Process Validation Plan for MS1356.doc
+│      S0023-9052A Assembly Material Cleaning Process Validation Plan for MS1356.pdf
+│      S0023-9052B Assembly Material Cleaning Process Validation Report for MS1356.doc
+│      S0023-9052B Assembly Material Cleaning Process Validation Report for MS1356.pdf
+│      S0023-9053A CGM-MS3 Front-end Assembly Process Validation Protocol .doc
+│      S0023-9053A CGM-MS3 Front-end Assembly Process Validation Protocol .pdf
+│      S0023-9053B CGM-MS3 Front-end Assembly Process Validation Report.doc
+│      S0023-9053B CGM-MS3 Front-end Assembly Process Validation Report.pdf
+│      S0023-9084 Summative Usability Test Protocol For CGMs.docx
+│      S0023-9084 Summative Usability Test Protocol For CGMs.pdf
+│      S0023-9085 Summative Usability Test Report For CGMs .docx
+│      S0023-9085 Summative Usability Test Report For CGMs .pdf
+│      S0023-9108A Design Verification Protocol for CGM-MS1 Continuous Glucose Monitoring System.docx
+│      S0023-9108A Design Verification Protocol for CGM-MS1 Continuous Glucose Monitoring System.pdf
+│      S0023-9108B Design Verification Report for CGM-MS1 Continuous Glucose Monitoring System.docx
+│      S0023-9108B Design Verification Report for CGM-MS1 Continuous Glucose Monitoring System.pdf
+│      S0023-9109A Design Verification Protocol for CGM-MS3 Continuous Glucose Monitoring System.docx
+│      S0023-9109A Design Verification Protocol for CGM-MS3 Continuous Glucose Monitoring System.pdf
+│      S0023-9109B Design Verification Report for CGM-MS3 Continuous Glucose Monitoring System.docx
+│      S0023-9109B Design Verification Report for CGM-MS3 Continuous Glucose Monitoring System.pdf
+│      S0023-9110A Design Verification Protocol for CGM-MS5 Continuous Glucose Monitoring System.docx
+│      S0023-9110A Design Verification Protocol for CGM-MS5 Continuous Glucose Monitoring System.pdf
+│      S0023-9110B Design Verification Report for CGM-MS5 Continuous Glucose Monitoring System.docx
+│      S0023-9110B Design Verification Report for CGM-MS5 Continuous Glucose Monitoring System.pdf
+│      S0023-9113A Process Validation Protocol for Enzyme Coating of Blood Glucose Sensor.DOC
+│      S0023-9113A Process Validation Protocol for Enzyme Coating of Blood Glucose Sensor.pdf
+│      S0023-9113B Process Validation Report for Enzyme Coating of Blood Glucose Sensor.DOC
+│      S0023-9113B Process Validation Report for Enzyme Coating of Blood Glucose Sensor.pdf
+│      S0023-9114A Process Validation Protocol for Outer Membrane Coating of Blood Glucose S.pdf
+│      S0023-9114A Process Validation Protocol for Outer Membrane Coating of Blood Glucose Sensor.DOC
+│      S0023-9114B Process Validation Report for Outer Membrane Coating of Blood Glucose Sen.pdf
+│      S0023-9114B Process Validation Report for Outer Membrane Coating of Blood Glucose Sensor.DOC
+│      S0023-9115A Process Validation Protocol for Cleaning after Electrochemical Testing of Sensor.DOC
+│      S0023-9115A Process Validation Protocol for Cleaning after Electrochemical Testing of.pdf
+│      S0023-9115B Process Validation Report for Cleaning after Electrochemical Testing of S.pdf
+│      S0023-9115B Process Validation Report for Cleaning after Electrochemical Testing of Sensor.DOC
+│      S0023-9117A Process Validation Protocol for Cleaning after Electrical Testing of CGM- MS3.doc
+│      S0023-9117A Process Validation Protocol for Cleaning after Electrical Testing of CGM-.pdf
+│      S0023-9117B Process Validation Report for Cleaning after Electrical Testing of CGM- M.pdf
+│      S0023-9117B Process Validation Report for Cleaning after Electrical Testing of CGM- MS3.doc
+│      S0023-9126 Research Report on the Synthesis Process of Metal Coordination Polymers fo.pdf
+│      S0023-9126 Research Report on the Synthesis Process of Metal Coordination Polymers for Continuous Glucose Monitoring Systems.DOC
+│      S0023-9127 Research Report on the Synthesis Process of the Outer Membrane Layer Polym.pdf
+│      S0023-9127 Research Report on the Synthesis Process of the Outer Membrane Layer Polymer for Continuous Glucose Monitoring Systems.DOC
+│      S0023-9138A Process Validation Protocol for Installation of CGM-MS1 Transmitter Cover.DOC
+│      S0023-9138A Process Validation Protocol for Installation of CGM-MS1 Transmitter Cover.pdf
+│      S0023-9138B Process Validation Report for Installation of CGM-MS1 Transmitter Cover.DOC
+│      S0023-9138B Process Validation Report for Installation of CGM-MS1 Transmitter Cover.pdf
+│      S0023-9147A CGM-MS1 Sensor Component Packaging Process Confirmation plan.docx
+│      S0023-9147A CGM-MS1 Sensor Component Packaging Process Confirmation plan.pdf
+│      S0023-9147B CGM-MS1 Sensor Component Packaging Process Confirmation report.docx
+│      S0023-9147B CGM-MS1 Sensor Component Packaging Process Confirmation report.pdf
+│      S0023-9148A CGM-MS3 Installation Protection Cover Module Process Air Tightness Research Plan.docx
+│      S0023-9148A CGM-MS3 Installation Protection Cover Module Process Air Tightness Research Plan.pdf
+│      S0023-9148B CGM-MS3 Installation Protection Cover Module Process Air Tightness Research Report.docx
+│      S0023-9148B CGM-MS3 Installation Protection Cover Module Process Air Tightness Research Report.pdf
+│      S0023-9149A CGM-MS5&6 Installation of Sterile Module Procedure Air Tightness Research Plan.docx
+│      S0023-9149A CGM-MS5&6 Installation of Sterile Module Procedure Air Tightness Research Plan.pdf
+│      S0023-9149B CGM-MS5&6 Installation of Sterile Module Procedure Air Tightness Research Report.docx
+│      S0023-9149B CGM-MS5&6 Installation of Sterile Module Procedure Air Tightness Research Report.pdf
+│      S0023-9151A CGM-MS1 Continuous Glucose Monitoring System Accelerated Aging Test Plan.docx
+│      S0023-9151A CGM-MS1 Continuous Glucose Monitoring System Accelerated Aging Test Plan.pdf
+│      S0023-9151B CGM-MS1 Continuous Glucose Monitoring System Accelerated Aging Test Report.docx
+│      S0023-9151B CGM-MS1 Continuous Glucose Monitoring System Accelerated Aging Test Report.pdf
+│      S0023-9152A CGM-MS3 Continuous Glucose Monitoring System Accelerated Aging Test Plan.docx
+│      S0023-9152A CGM-MS3 Continuous Glucose Monitoring System Accelerated Aging Test Plan.pdf
+│      S0023-9152B CGM-MS3 Continuous Glucose Monitoring System Accelerated Aging Test Report.docx
+│      S0023-9152B CGM-MS3 Continuous Glucose Monitoring System Accelerated Aging Test Report.pdf
+│      S0023-9153A CGM-MS5 Continuous Glucose Monitoring System Accelerated Aging Test Plan.docx
+│      S0023-9153A CGM-MS5 Continuous Glucose Monitoring System Accelerated Aging Test Plan.pdf
+│      S0023-9153B CGM-MS5 Continuous Glucose Monitoring System Accelerated Aging Test Report.docx
+│      S0023-9153B CGM-MS5 Continuous Glucose Monitoring System Accelerated Aging Test Report.pdf
+│      S0023-9160A CGM-MS5MS6 Transmitter Dispensing Process Validation Protocol .doc
+│      S0023-9160A CGM-MS5MS6 Transmitter Dispensing Process Validation Protocol .pdf
+│      S0023-9160B CGM-MS5MS6 Transmitter Dispensing Process Validation Report .doc
+│      S0023-9160B CGM-MS5MS6 Transmitter Dispensing Process Validation Report .pdf
+│      S0023-9161B Process Revalidation Report for Primary Packaging of CGM-MS1.docx
+│      S0023-9161B Process Revalidation Report for Primary Packaging of CGM-MS1.pdf
+│      S0023-9162B Process Validation Report for Ultrasonic Welding of CGM-MS1.docx
+│      S0023-9162B Process Validation Report for Ultrasonic Welding of CGM-MS1.pdf
+│      S0023-9163A Process Validation Protocol for Ultrasonic Welding of CGMMS3.docx
+│      S0023-9163A Process Validation Protocol for Ultrasonic Welding of CGMMS3.pdf
+│      S0023-9163B Process Validation Report for Ultrasonic Welding of CGM-MS3.docx
+│      S0023-9163B Process Validation Report for Ultrasonic Welding of CGM-MS3.pdf
+│      S0023-9164 CGM-MS1&3&5&6 Continuous Glucose Monitoring System Process Validation Maste.docx
+│      S0023-9164 CGM-MS1&3&5&6 Continuous Glucose Monitoring System Process Validation Maste_Zou, PeiWen_2026_05_08.docx
+│      S0023-9165 CGM-MS1&3&5&6 PFMEA.docx
+│      S0023-9165 CGM-MS1&3&5&6 PFMEA.pdf
+│
+├─T5
+│      CGM-1-CE-A-CH9.2.5-S0023-9118 Continuous Glucose Monitoring System Software Maintenance Plan.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9118 Continuous Glucose Monitoring System Software Maintenance Plan.pdf
+│      CGM-1-CE-A-CH9.2.5-S0023-9120 Continuous Glucose Monitoring System  Software Maintenance Records.docx
+│      CGM-1-CE-A-CH9.2.5-S0023-9120 Continuous Glucose Monitoring System  Software Maintenance Records.pdf
+│      S0023-9086 CH13 Usability Engineering Summative Report For CGMs .docx
+│      S0023-9086 CH13 Usability Engineering Summative Report For CGMs .pdf
+│      S0023-9100 Post-Market Surveillance Plan  for CGMs.docx
+│      S0023-9100 Post-Market Surveillance Plan  for CGMs.pdf
+│      S0023-9101 Safety Information and Residual Risks Communicated via the Product IFU.docx
+│      S0023-9101 Safety Information and Residual Risks Communicated via the Product IFU.pdf
+│      S0023-9103 Use-Related Risk Analysis Report For CGMs.docx
+│      S0023-9103 Use-Related Risk Analysis Report For CGMs.pdf
+│      S0023-9104 Pre-Market Risk Management Report For CGMs.docx
+│      S0023-9104 Pre-Market Risk Management Report For CGMs.pdf
+│      S0023-9106 附件A：持续葡萄糖监测系统（CGMs）技术评审检查表（T4&T5）.docx
+│      S0023-9106_持续葡萄糖监测系统（CGMs）T4&T5技术评审报告 (1).doc
+│
+└─T6
