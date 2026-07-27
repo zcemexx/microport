@@ -1,19 +1,23 @@
 Attribute VB_Name = "BatchInjectStandardStyles"
 Option Explicit
 
-' 所有样式统一使用：中文宋体，英文及其他西文 Times New Roman。
-Private Const FONT_EAST_ASIA As String = "宋体"
+' ASCII-only VBA source file.
+' This file can be imported into Word VBA without UTF-8/ANSI mojibake.
+'
+' The East Asian font name is built with Unicode code points:
+'   U+5B8B U+4F53 = Songti (Chinese font)
+
 Private Const FONT_LATIN As String = "Times New Roman"
 
-' 中文字号对应的磅值：一号 26 磅，小四 12 磅，五号 10.5 磅。
+' Chinese font sizes in points: No. 1 = 26, Small No. 4 = 12, No. 5 = 10.5.
 Private Const COVER_FONT_SIZE As Single = 26
 Private Const BODY_FONT_SIZE As Single = 12
 Private Const TABLE_FONT_SIZE As Single = 10.5
 
-' 新建的自定义段落样式名称。
-Private Const STYLE_COVER_TITLE As String = "封面标题"
-Private Const STYLE_TABLE_TITLE As String = "表格标题"
-Private Const STYLE_TABLE_CONTENT As String = "表格内容"
+' Custom paragraph style names are ASCII to remain import-safe in Word VBA.
+Private Const STYLE_COVER_TITLE As String = "Cover Title"
+Private Const STYLE_TABLE_TITLE As String = "Table Title"
+Private Const STYLE_TABLE_CONTENT As String = "Table Content"
 
 Public Sub BatchInjectStandardStyles()
     Dim folderPath As String
@@ -45,7 +49,7 @@ Public Sub BatchInjectStandardStyles()
 
     Set wordFiles = New Collection
 
-    ' 只收集当前文件夹，不递归处理子文件夹。
+    ' Current folder only; subfolders are not included.
     fileName = Dir$(folderPath & "*.*", _
                     vbNormal Or vbReadOnly Or vbHidden Or vbSystem)
 
@@ -59,17 +63,18 @@ Public Sub BatchInjectStandardStyles()
     Loop
 
     If wordFiles.Count = 0 Then
-        MsgBox "所选文件夹中没有找到可处理的 Word 文档。", _
-               vbExclamation, "没有 Word 文档"
+        MsgBox "No supported Word documents were found in the selected folder.", _
+               vbExclamation, "No documents"
         Exit Sub
     End If
 
     If MsgBox( _
-        "即将原位修改并保存 " & wordFiles.Count & " 个 Word 文档。" & _
-        vbCrLf & vbCrLf & folderPath & vbCrLf & vbCrLf & _
-        "建议先备份文件。是否继续？", _
+        "This will modify and save " & wordFiles.Count & _
+        " Word document(s) in place." & vbCrLf & vbCrLf & _
+        folderPath & vbCrLf & vbCrLf & _
+        "Back up the files before continuing. Continue?", _
         vbQuestion + vbYesNo + vbDefaultButton2, _
-        "确认注入标准样式") <> vbYes Then
+        "Confirm batch formatting") <> vbYes Then
         Exit Sub
     End If
 
@@ -82,14 +87,14 @@ Public Sub BatchInjectStandardStyles()
     Application.ScreenUpdating = False
     Application.DisplayAlerts = wdAlertsNone
 
-    ' 禁止待处理的 .docm 文档执行 AutoOpen 等宏。
+    ' Prevent AutoOpen and other macros in processed .docm files from running.
     Application.AutomationSecurity = msoAutomationSecurityForceDisable
 
     For Each filePath In wordFiles
         currentIndex = currentIndex + 1
         Application.StatusBar = _
-            "正在注入标准样式 " & currentIndex & "/" & wordFiles.Count & _
-            "：" & CStr(filePath)
+            "Applying styles " & currentIndex & "/" & wordFiles.Count & ": " & _
+            CStr(filePath)
         DoEvents
 
         result = vbNullString
@@ -98,15 +103,15 @@ Public Sub BatchInjectStandardStyles()
         ProcessOneDocument CStr(filePath), result, detail
 
         Select Case result
-            Case "成功"
+            Case "Success"
                 successCount = successCount + 1
-            Case "跳过"
+            Case "Skipped"
                 skippedCount = skippedCount + 1
             Case Else
                 failedCount = failedCount + 1
         End Select
 
-        If result <> "成功" Then
+        If result <> "Success" Then
             Debug.Print result & " | " & CStr(filePath) & " | " & detail
         End If
     Next filePath
@@ -122,27 +127,27 @@ CleanExit:
     On Error GoTo 0
 
     If Len(fatalMessage) > 0 Then
-        MsgBox fatalMessage, vbCritical, "批量注入已中止"
+        MsgBox fatalMessage, vbCritical, "Batch formatting stopped"
     Else
-        MsgBox "标准样式及页边距注入完成。" & vbCrLf & vbCrLf & _
-               "成功：" & successCount & vbCrLf & _
-               "跳过：" & skippedCount & vbCrLf & _
-               "失败：" & failedCount & vbCrLf & vbCrLf & _
-               "跳过或失败的详细信息可在 VBA 立即窗口中查看。", _
+        MsgBox "Batch formatting finished." & vbCrLf & vbCrLf & _
+               "Success: " & successCount & vbCrLf & _
+               "Skipped: " & skippedCount & vbCrLf & _
+               "Failed: " & failedCount & vbCrLf & vbCrLf & _
+               "Details for skipped or failed files are in the Immediate window.", _
                IIf(failedCount = 0, vbInformation, vbExclamation), _
-               "批量注入完成"
+               "Batch formatting complete"
     End If
     Exit Sub
 
 FatalError:
-    fatalMessage = "处理过程中发生错误：" & vbCrLf & _
+    fatalMessage = "An error occurred:" & vbCrLf & _
                    CStr(Err.Number) & " - " & Err.Description
     Resume CleanExit
 End Sub
 
 Private Function PickTargetFolder() As String
     With Application.FileDialog(msoFileDialogFolderPicker)
-        .Title = "请选择需要注入标准样式的 Word 文件夹"
+        .Title = "Select the folder containing Word documents"
 
         If .Show <> -1 Then
             PickTargetFolder = vbNullString
@@ -162,10 +167,10 @@ Private Sub ProcessOneDocument(ByVal filePath As String, _
 
     On Error GoTo DocumentError
 
-    ' 如果本宏保存在所选文件夹中的 .docm 内，避免修改正在运行的文档。
+    ' Avoid modifying the document that contains this macro.
     If StrComp(filePath, ThisDocument.FullName, vbTextCompare) = 0 Then
-        result = "跳过"
-        detail = "该文件是当前宏所在文档"
+        result = "Skipped"
+        detail = "The file is the document containing this macro."
         Exit Sub
     End If
 
@@ -179,14 +184,14 @@ Private Sub ProcessOneDocument(ByVal filePath As String, _
     documentWasOpened = True
 
     If doc.ReadOnly Then
-        result = "跳过"
-        detail = "文档以只读方式打开"
+        result = "Skipped"
+        detail = "The document opened as read-only."
         GoTo CloseWithoutSaving
     End If
 
     If doc.ProtectionType <> wdNoProtection Then
-        result = "跳过"
-        detail = "文档受保护，ProtectionType=" & CStr(doc.ProtectionType)
+        result = "Skipped"
+        detail = "The document is protected."
         GoTo CloseWithoutSaving
     End If
 
@@ -203,8 +208,8 @@ Private Sub ProcessOneDocument(ByVal filePath As String, _
     doc.Close SaveChanges:=wdDoNotSaveChanges
     documentWasOpened = False
 
-    result = "成功"
-    detail = "封面/正文/标题/表格样式、现有表格内容及各节页边距已更新"
+    result = "Success"
+    detail = "Styles, table content, and margins were updated."
     Exit Sub
 
 CloseWithoutSaving:
@@ -213,7 +218,7 @@ CloseWithoutSaving:
     Exit Sub
 
 DocumentError:
-    result = "失败"
+    result = "Failed"
     detail = CStr(Err.Number) & " - " & Err.Description
 
     On Error Resume Next
@@ -229,11 +234,11 @@ End Sub
 Private Sub ApplyStandardStyles(ByVal doc As Document)
     Dim headingStyleIds As Variant
     Dim targetStyle As Style
-    Dim index As Long
+    Dim styleIndex As Long
 
     CreateOrUpdateCoverTitleStyle doc
 
-    ' 正文：中文宋体、西文 TNR、小四、不加粗、1.5 倍行距、段后 1 行。
+    ' Body: Songti for East Asian text, TNR for Latin text, 12 pt, 1.5 lines.
     Set targetStyle = doc.Styles(wdStyleNormal)
     ApplyBilingualStyleFont targetStyle, BODY_FONT_SIZE, False
 
@@ -257,11 +262,11 @@ Private Sub ApplyStandardStyles(ByVal doc As Document)
         wdStyleHeading8, _
         wdStyleHeading9)
 
-    For index = LBound(headingStyleIds) To UBound(headingStyleIds)
-        Set targetStyle = doc.Styles(headingStyleIds(index))
+    For styleIndex = LBound(headingStyleIds) To UBound(headingStyleIds)
+        Set targetStyle = doc.Styles(headingStyleIds(styleIndex))
 
-        ' 一级和二级标题加粗；三级至九级标题不加粗，字号均为小四。
-        ApplyBilingualStyleFont targetStyle, BODY_FONT_SIZE, (index <= 1)
+        ' Heading 1 and 2 are bold. Heading 3 through 9 are not bold.
+        ApplyBilingualStyleFont targetStyle, BODY_FONT_SIZE, (styleIndex <= 1)
 
         With targetStyle.ParagraphFormat
             .SpaceBeforeAuto = False
@@ -270,7 +275,7 @@ Private Sub ApplyStandardStyles(ByVal doc As Document)
             .LineUnitAfter = 1
         End With
         targetStyle.NextParagraphStyle = wdStyleNormal
-    Next index
+    Next styleIndex
 
     CreateOrUpdateTableTitleStyle doc
     CreateOrUpdateTableContentStyle doc
@@ -318,7 +323,6 @@ Private Sub CreateOrUpdateTableTitleStyle(ByVal doc As Document)
         .SpaceBeforeAuto = False
         .SpaceAfterAuto = False
         .LineUnitBefore = 0
-        ' 采用允许范围中的 0 行，使表格标题紧贴表格。
         .LineUnitAfter = 0
     End With
 End Sub
@@ -361,10 +365,10 @@ Private Function GetOrCreateParagraphStyle(ByVal doc As Document, _
            targetStyle.Type <> wdStyleTypeLinked Then
         Err.Raise vbObjectError + 2101, _
                   "GetOrCreateParagraphStyle", _
-                  "名称为“" & styleName & "”的现有样式不是段落样式。"
+                  "The existing style is not a paragraph style: " & styleName
     End If
 
-    ' 某些旧版 Word 不支持 QuickStyle；失败时不影响样式本身。
+    ' Some old Word versions do not support QuickStyle.
     On Error Resume Next
     targetStyle.QuickStyle = True
     On Error GoTo 0
@@ -379,11 +383,15 @@ Private Sub ApplyBilingualStyleFont(ByVal targetStyle As Style, _
         .NameAscii = FONT_LATIN
         .NameOther = FONT_LATIN
         .NameBi = FONT_LATIN
-        .NameFarEast = FONT_EAST_ASIA
+        .NameFarEast = EastAsianFontName()
         .Size = fontSize
         .Bold = useBold
     End With
 End Sub
+
+Private Function EastAsianFontName() As String
+    EastAsianFontName = ChrW(&H5B8B) & ChrW(&H4F53)
+End Function
 
 Private Sub ApplyTableContentStyleToExistingTables(ByVal doc As Document)
     Dim docTable As Table
@@ -396,12 +404,12 @@ Private Sub ApplyTableContentStyleToExistingTables(ByVal doc As Document)
         For Each tableParagraph In docTable.Range.Paragraphs
             tableParagraph.Range.Style = tableContentStyle
 
-            ' 清除样式可能无法覆盖的直接字体格式，确保现有内容也符合要求。
+            ' Apply direct values too, so prior direct formatting cannot override the style.
             With tableParagraph.Range.Font
                 .NameAscii = FONT_LATIN
                 .NameOther = FONT_LATIN
                 .NameBi = FONT_LATIN
-                .NameFarEast = FONT_EAST_ASIA
+                .NameFarEast = EastAsianFontName()
                 .Size = TABLE_FONT_SIZE
                 .Bold = False
             End With
@@ -421,27 +429,27 @@ Public Sub AutoSetMarginsByOrientation()
     On Error GoTo MarginError
 
     If Documents.Count = 0 Then
-        MsgBox "当前没有打开的 Word 文档。", _
-               vbExclamation, "无法设置页边距"
+        MsgBox "No Word document is open.", _
+               vbExclamation, "Cannot set margins"
         Exit Sub
     End If
 
     ApplyStandardMargins ActiveDocument
 
-    MsgBox "全篇文档已按每个节的横竖方向完成页边距设置！", _
-           vbInformation, "完成"
+    MsgBox "Margins were set for every section based on its orientation.", _
+           vbInformation, "Finished"
     Exit Sub
 
 MarginError:
-    MsgBox "设置页边距失败：" & vbCrLf & _
+    MsgBox "Failed to set margins:" & vbCrLf & _
            CStr(Err.Number) & " - " & Err.Description, _
-           vbCritical, "设置失败"
+           vbCritical, "Error"
 End Sub
 
 Private Sub ApplyStandardMargins(ByVal doc As Document)
     Dim docSection As Section
 
-    ' 逐节判断版式，支持横竖版混排文档。
+    ' Each section is processed independently, supporting mixed orientations.
     For Each docSection In doc.Sections
         With docSection.PageSetup
             If .Orientation = wdOrientPortrait Then
