@@ -18,12 +18,15 @@ Private Const TABLE_FONT_SIZE As Single = 10.5
 Private Const STYLE_COVER_TITLE As String = "Cover Title"
 Private Const STYLE_TABLE_TITLE As String = "Table Title"
 Private Const STYLE_TABLE_CONTENT As String = "Table Content"
+Private Const OUTPUT_FOLDER_NAME As String = "formatted_output"
 
 Public Sub BatchInjectStandardStyles()
     Dim folderPath As String
-    Dim fileName As String
     Dim filePath As Variant
+    Dim outputPath As String
+    Dim outputRootPath As String
     Dim wordFiles As Collection
+    Dim fileSystem As Object
     Dim result As String
     Dim detail As String
     Dim successCount As Long
@@ -34,7 +37,6 @@ Public Sub BatchInjectStandardStyles()
     Dim oldScreenUpdating As Boolean
     Dim oldDisplayAlerts As WdAlertLevel
     Dim oldAutomationSecurity As Long
-    Dim oldStatusBar As Variant
     Dim settingsCaptured As Boolean
     Dim fatalMessage As String
 
@@ -43,24 +45,15 @@ Public Sub BatchInjectStandardStyles()
     folderPath = PickTargetFolder()
     If Len(folderPath) = 0 Then Exit Sub
 
-    If Right$(folderPath, 1) <> Application.PathSeparator Then
-        folderPath = folderPath & Application.PathSeparator
-    End If
-
     Set wordFiles = New Collection
+    Set fileSystem = CreateObject("Scripting.FileSystemObject")
+    folderPath = EnsureTrailingSeparator(fileSystem.GetAbsolutePathName(folderPath))
+    outputRootPath = fileSystem.BuildPath(folderPath, OUTPUT_FOLDER_NAME)
 
-    ' Current folder only; subfolders are not included.
-    fileName = Dir$(folderPath & "*.*", _
-                    vbNormal Or vbReadOnly Or vbHidden Or vbSystem)
-
-    Do While Len(fileName) > 0
-        If Left$(fileName, 2) <> "~$" Then
-            If IsSupportedWordFile(fileName) Then
-                wordFiles.Add folderPath & fileName
-            End If
-        End If
-        fileName = Dir$
-    Loop
+    CollectWordFilesRecursive fileSystem.GetFolder(folderPath), _
+                              outputRootPath, _
+                              wordFiles, _
+                              fileSystem
 
     If wordFiles.Count = 0 Then
         MsgBox "No supported Word documents were found in the selected folder.", _
@@ -68,20 +61,11 @@ Public Sub BatchInjectStandardStyles()
         Exit Sub
     End If
 
-    If MsgBox( _
-        "This will modify and save " & wordFiles.Count & _
-        " Word document(s) in place." & vbCrLf & vbCrLf & _
-        folderPath & vbCrLf & vbCrLf & _
-        "Back up the files before continuing. Continue?", _
-        vbQuestion + vbYesNo + vbDefaultButton2, _
-        "Confirm batch formatting") <> vbYes Then
-        Exit Sub
-    End If
+    EnsureFolderExists outputRootPath, fileSystem
 
     oldScreenUpdating = Application.ScreenUpdating
     oldDisplayAlerts = Application.DisplayAlerts
     oldAutomationSecurity = Application.AutomationSecurity
-    oldStatusBar = Application.StatusBar
     settingsCaptured = True
 
     Application.ScreenUpdating = False
@@ -92,15 +76,16 @@ Public Sub BatchInjectStandardStyles()
 
     For Each filePath In wordFiles
         currentIndex = currentIndex + 1
-        Application.StatusBar = _
-            "Applying styles " & currentIndex & "/" & wordFiles.Count & ": " & _
-            CStr(filePath)
         DoEvents
 
         result = vbNullString
         detail = vbNullString
 
-        ProcessOneDocument CStr(filePath), result, detail
+        outputPath = fileSystem.BuildPath( _
+            outputRootPath, _
+            RelativePathFromRoot(CStr(filePath), folderPath))
+
+        ProcessOneDocument CStr(filePath), outputPath, fileSystem, result, detail
 
         Select Case result
             Case "Success"
@@ -122,7 +107,6 @@ CleanExit:
         Application.ScreenUpdating = oldScreenUpdating
         Application.DisplayAlerts = oldDisplayAlerts
         Application.AutomationSecurity = oldAutomationSecurity
-        Application.StatusBar = oldStatusBar
     End If
     On Error GoTo 0
 
@@ -133,6 +117,7 @@ CleanExit:
                "Success: " & successCount & vbCrLf & _
                "Skipped: " & skippedCount & vbCrLf & _
                "Failed: " & failedCount & vbCrLf & vbCrLf & _
+               "Output folder: " & outputRootPath & vbCrLf & vbCrLf & _
                "Details for skipped or failed files are in the Immediate window.", _
                IIf(failedCount = 0, vbInformation, vbExclamation), _
                "Batch formatting complete"
@@ -157,30 +142,108 @@ Private Function PickTargetFolder() As String
     End With
 End Function
 
-Private Sub ProcessOneDocument(ByVal filePath As String, _
+Private Sub CollectWordFilesRecursive(ByVal sourceFolder As Object, _
+                                      ByVal outputRootPath As String, _
+                                      ByRef wordFiles As Collection, _
+                                      ByVal fileSystem As Object)
+    Dim sourceFile As Object
+    Dim subFolder As Object
+
+    For Each sourceFile In sourceFolder.Files
+        If Left$(sourceFile.Name, 2) <> "~$" Then
+            If IsSupportedWordFile(sourceFile.Name) Then
+                wordFiles.Add sourceFile.Path
+            End If
+        End If
+    Next sourceFile
+
+    For Each subFolder In sourceFolder.SubFolders
+        If StrComp(subFolder.Path, outputRootPath, vbTextCompare) <> 0 Then
+            CollectWordFilesRecursive subFolder, outputRootPath, wordFiles, fileSystem
+        End If
+    Next subFolder
+End Sub
+
+Private Function EnsureTrailingSeparator(ByVal folderPath As String) As String
+    If Right$(folderPath, 1) = Application.PathSeparator Then
+        EnsureTrailingSeparator = folderPath
+    Else
+        EnsureTrailingSeparator = folderPath & Application.PathSeparator
+    End If
+End Function
+
+Private Function RelativePathFromRoot(ByVal sourcePath As String, _
+                                      ByVal rootPath As String) As String
+    If StrComp(Left$(sourcePath, Len(rootPath)), rootPath, vbTextCompare) <> 0 Then
+        Err.Raise vbObjectError + 2102, _
+                  "RelativePathFromRoot", _
+                  "The source path is outside the selected root folder."
+    End If
+
+    RelativePathFromRoot = Mid$(sourcePath, Len(rootPath) + 1)
+End Function
+
+Private Sub EnsureFolderExists(ByVal folderPath As String, ByVal fileSystem As Object)
+    Dim parentPath As String
+
+    If fileSystem.FolderExists(folderPath) Then Exit Sub
+
+    parentPath = fileSystem.GetParentFolderName(folderPath)
+    If Len(parentPath) = 0 Then
+        Err.Raise vbObjectError + 2103, _
+                  "EnsureFolderExists", _
+                  "Cannot determine the parent folder for: " & folderPath
+    End If
+
+    EnsureFolderExists parentPath, fileSystem
+    fileSystem.CreateFolder folderPath
+End Sub
+
+Private Function BuildTemporaryOutputPath(ByVal outputPath As String, _
+                                          ByVal fileSystem As Object) As String
+    Dim outputFolder As String
+    Dim extensionName As String
+    Dim temporaryName As String
+
+    outputFolder = fileSystem.GetParentFolderName(outputPath)
+    extensionName = fileSystem.GetExtensionName(outputPath)
+    temporaryName = "~format_" & Replace(fileSystem.GetTempName, ".", "_")
+
+    If Len(extensionName) > 0 Then
+        temporaryName = temporaryName & "." & extensionName
+    End If
+
+    BuildTemporaryOutputPath = fileSystem.BuildPath(outputFolder, temporaryName)
+End Function
+
+Private Sub ProcessOneDocument(ByVal sourcePath As String, _
+                               ByVal outputPath As String, _
+                               ByVal fileSystem As Object, _
                                ByRef result As String, _
                                ByRef detail As String)
     Dim doc As Document
     Dim documentWasOpened As Boolean
     Dim previousTrackRevisions As Boolean
     Dim trackRevisionsCaptured As Boolean
+    Dim sourceSaveFormat As Long
+    Dim temporaryOutputPath As String
 
     On Error GoTo DocumentError
 
     ' Avoid modifying the document that contains this macro.
-    If StrComp(filePath, ThisDocument.FullName, vbTextCompare) = 0 Then
+    If StrComp(sourcePath, ThisDocument.FullName, vbTextCompare) = 0 Then
         result = "Skipped"
         detail = "The file is the document containing this macro."
         Exit Sub
     End If
 
     Set doc = Documents.Open( _
-        FileName:=filePath, _
+        FileName:=sourcePath, _
         ConfirmConversions:=False, _
         ReadOnly:=False, _
         AddToRecentFiles:=False, _
         Visible:=False, _
-        OpenAndRepair:=True)
+        OpenAndRepair:=False)
     documentWasOpened = True
 
     If doc.ReadOnly Then
@@ -197,19 +260,30 @@ Private Sub ProcessOneDocument(ByVal filePath As String, _
 
     previousTrackRevisions = doc.TrackRevisions
     trackRevisionsCaptured = True
+    sourceSaveFormat = doc.SaveFormat
     doc.TrackRevisions = False
 
     ApplyStandardStyles doc
-    ApplyTableContentStyleToExistingTables doc
+    ApplyStyleShortcuts doc
+    ApplyHeadingFormattingToExistingParagraphs doc
     ApplyStandardMargins doc
 
     doc.TrackRevisions = previousTrackRevisions
-    doc.Save
+    EnsureFolderExists fileSystem.GetParentFolderName(outputPath), fileSystem
+    temporaryOutputPath = BuildTemporaryOutputPath(outputPath, fileSystem)
+    doc.SaveAs2 FileName:=temporaryOutputPath, _
+                FileFormat:=sourceSaveFormat, _
+                AddToRecentFiles:=False
     doc.Close SaveChanges:=wdDoNotSaveChanges
     documentWasOpened = False
 
+    If fileSystem.FileExists(outputPath) Then
+        fileSystem.DeleteFile outputPath, True
+    End If
+    fileSystem.MoveFile temporaryOutputPath, outputPath
+
     result = "Success"
-    detail = "Styles, table content, and margins were updated."
+    detail = "Formatted copy was saved to: " & outputPath
     Exit Sub
 
 CloseWithoutSaving:
@@ -227,6 +301,11 @@ DocumentError:
             doc.TrackRevisions = previousTrackRevisions
         End If
         doc.Close SaveChanges:=wdDoNotSaveChanges
+    End If
+    If Len(temporaryOutputPath) > 0 Then
+        If fileSystem.FileExists(temporaryOutputPath) Then
+            fileSystem.DeleteFile temporaryOutputPath, True
+        End If
     End If
     On Error GoTo 0
 End Sub
@@ -269,6 +348,7 @@ Private Sub ApplyStandardStyles(ByVal doc As Document)
         ApplyBilingualStyleFont targetStyle, BODY_FONT_SIZE, (styleIndex <= 1)
 
         With targetStyle.ParagraphFormat
+            .LineSpacingRule = wdLineSpace1pt5
             .SpaceBeforeAuto = False
             .SpaceAfterAuto = False
             .LineUnitBefore = 1
@@ -280,6 +360,81 @@ Private Sub ApplyStandardStyles(ByVal doc As Document)
     CreateOrUpdateTableTitleStyle doc
     CreateOrUpdateTableContentStyle doc
 End Sub
+
+Private Sub ApplyStyleShortcuts(ByVal doc As Document)
+    Dim previousContext As Object
+    Dim errorNumber As Long
+    Dim errorDescription As String
+
+    Set previousContext = Application.CustomizationContext
+    On Error GoTo ShortcutError
+
+    Application.CustomizationContext = doc
+
+    AddStyleShortcut doc.Styles(wdStyleHeading1).NameLocal, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKey1)
+    AddStyleShortcut doc.Styles(wdStyleHeading2).NameLocal, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKey2)
+    AddStyleShortcut doc.Styles(wdStyleHeading3).NameLocal, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKey3)
+    AddStyleShortcut STYLE_COVER_TITLE, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKeyQ)
+    AddStyleShortcut STYLE_TABLE_TITLE, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKeyW)
+    AddStyleShortcut STYLE_TABLE_CONTENT, _
+                     Application.BuildKeyCode(wdKeyAlt, wdKeyE)
+
+    Application.CustomizationContext = previousContext
+    Exit Sub
+
+ShortcutError:
+    errorNumber = Err.Number
+    errorDescription = Err.Description
+
+    On Error Resume Next
+    Application.CustomizationContext = previousContext
+    On Error GoTo 0
+
+    Err.Raise errorNumber, "ApplyStyleShortcuts", errorDescription
+End Sub
+
+Private Sub AddStyleShortcut(ByVal styleName As String, ByVal keyCode As Long)
+    Application.KeyBindings.Add _
+        KeyCategory:=wdKeyCategoryStyle, _
+        Command:=styleName, _
+        KeyCode:=keyCode
+End Sub
+
+Private Sub ApplyHeadingFormattingToExistingParagraphs(ByVal doc As Document)
+    Dim documentParagraph As Paragraph
+
+    For Each documentParagraph In doc.Paragraphs
+        If IsHeadingParagraph(documentParagraph) Then
+            With documentParagraph.Format
+                .LineSpacingRule = wdLineSpace1pt5
+                .SpaceBeforeAuto = False
+                .SpaceAfterAuto = False
+                .LineUnitBefore = 1
+                .LineUnitAfter = 1
+            End With
+        End If
+    Next documentParagraph
+End Sub
+
+Private Function IsHeadingParagraph(ByVal documentParagraph As Paragraph) As Boolean
+    Select Case documentParagraph.OutlineLevel
+        Case wdOutlineLevel1, _
+             wdOutlineLevel2, _
+             wdOutlineLevel3, _
+             wdOutlineLevel4, _
+             wdOutlineLevel5, _
+             wdOutlineLevel6, _
+             wdOutlineLevel7, _
+             wdOutlineLevel8, _
+             wdOutlineLevel9
+            IsHeadingParagraph = True
+    End Select
+End Function
 
 Private Sub CreateOrUpdateCoverTitleStyle(ByVal doc As Document)
     Dim targetStyle As Style
@@ -341,6 +496,7 @@ Private Sub CreateOrUpdateTableContentStyle(ByVal doc As Document)
     ApplyBilingualStyleFont targetStyle, TABLE_FONT_SIZE, False
 
     With targetStyle.ParagraphFormat
+        .Alignment = wdAlignParagraphLeft
         .LineSpacingRule = wdLineSpaceSingle
         .SpaceBeforeAuto = False
         .SpaceAfterAuto = False
@@ -361,8 +517,7 @@ Private Function GetOrCreateParagraphStyle(ByVal doc As Document, _
         Set targetStyle = doc.Styles.Add( _
             Name:=styleName, _
             Type:=wdStyleTypeParagraph)
-    ElseIf targetStyle.Type <> wdStyleTypeParagraph And _
-           targetStyle.Type <> wdStyleTypeLinked Then
+    ElseIf targetStyle.Type <> wdStyleTypeParagraph Then
         Err.Raise vbObjectError + 2101, _
                   "GetOrCreateParagraphStyle", _
                   "The existing style is not a paragraph style: " & styleName
@@ -392,38 +547,6 @@ End Sub
 Private Function EastAsianFontName() As String
     EastAsianFontName = ChrW(&H5B8B) & ChrW(&H4F53)
 End Function
-
-Private Sub ApplyTableContentStyleToExistingTables(ByVal doc As Document)
-    Dim docTable As Table
-    Dim tableParagraph As Paragraph
-    Dim tableContentStyle As Style
-
-    Set tableContentStyle = doc.Styles(STYLE_TABLE_CONTENT)
-
-    For Each docTable In doc.Tables
-        For Each tableParagraph In docTable.Range.Paragraphs
-            tableParagraph.Range.Style = tableContentStyle
-
-            ' Apply direct values too, so prior direct formatting cannot override the style.
-            With tableParagraph.Range.Font
-                .NameAscii = FONT_LATIN
-                .NameOther = FONT_LATIN
-                .NameBi = FONT_LATIN
-                .NameFarEast = EastAsianFontName()
-                .Size = TABLE_FONT_SIZE
-                .Bold = False
-            End With
-
-            With tableParagraph.Format
-                .LineSpacingRule = wdLineSpaceSingle
-                .SpaceBeforeAuto = False
-                .SpaceAfterAuto = False
-                .SpaceBefore = 0
-                .SpaceAfter = 0
-            End With
-        Next tableParagraph
-    Next docTable
-End Sub
 
 Public Sub AutoSetMarginsByOrientation()
     On Error GoTo MarginError
